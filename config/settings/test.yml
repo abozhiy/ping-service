@@ -1,0 +1,3 @@
+db:
+  database: ping_test
+  max_connections: 1
