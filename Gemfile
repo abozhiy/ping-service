@@ -21,6 +21,7 @@ gem 'rake'
 gem 'config'
 
 gem 'sidekiq'
+gem 'sidekiq-cron'
 
 gem 'redis'
 

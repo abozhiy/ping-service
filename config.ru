@@ -2,6 +2,8 @@
 
 require_relative 'config/environment'
 
-map '/ips' do
-  run ::Endpoints::Ips
-end
+Sidekiq::Web.use Rack::Session::Cookie, secret: ENV['SESSION_SECRET']
+run Rack::URLMap.new(
+  '/ips' => ::Endpoints::Ips,
+  '/sidekiq' => Sidekiq::Web
+)

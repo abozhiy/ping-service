@@ -1,0 +1,7 @@
+---
+:concurrency: 10
+:logfile: ./log/sidekiq.log
+:timeout: 25
+:queues:
+  - default
+  - ping
