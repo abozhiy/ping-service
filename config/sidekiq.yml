@@ -1,6 +1,6 @@
 ---
-:concurrency: 10
-:logfile: ./log/sidekiq.log
+:concurrency: 5
+:logfile: ./logs/sidekiq.log
 :timeout: 25
 :queues:
   - default

@@ -3,9 +3,9 @@
 module Endpoints
   class Ips < Application
     post '/', provides: :json do
-      uuid = create_ip(create_params)
+      uuid = create_ip(validate_with! Contracts::IpParamsContract)
       if uuid
-        json uuid: uuid, status: :ok
+        json uuid: uuid, status: 200
       else
         json status: 422
       end
@@ -14,7 +14,7 @@ module Endpoints
     post '/:uuid/enable' do
       uuid = enable_stat
       if uuid
-        json uuid: uuid, status: :ok
+        json uuid: uuid, status: 200
       else
         json status: 422
       end
@@ -23,19 +23,24 @@ module Endpoints
     post '/:uuid/disable' do
       uuid = disable_stat
       if uuid
-        json uuid: uuid, status: :ok
+        json uuid: uuid, status: 200
       else
         json status: 422
       end
     end
 
     get '/:uuid/stats' do
-      # получить статистику для адреса (time_from: datetime, time_to: datetime)
+      data = stats_query(validate_with! Contracts::IpStatParamsContract)
+      if data
+        json data: data.to_json, status: 200
+      else
+        json status: 422
+      end
     end
 
     delete '/:uuid' do
       if delete_ip
-        json status: :ok
+        json status: 200
       else
         json status: 422
       end
@@ -43,27 +48,37 @@ module Endpoints
 
     private
 
-    def create_params
-      validate_with! Contracts::IpParamsContract
-    end
-
-    def create_ip(ip_params)
-      ::Services::CreateIp.call(
-        ip_address: ip_params[:ip][:ip_address],
-        enabled: ip_params[:ip][:enabled]
+    def create_ip(params)
+      ::Ips::Services::CreateIp.call(
+        ip_address: params[:ip][:ip_address],
+        enabled: params[:ip][:enabled],
+        logger: logger
       )
     end
 
     def enable_stat
-      ::Services::EnableStat.call(uuid: params[:uuid])
+      ::Ips::Services::SwitchStat::Enable.call(uuid: params[:uuid], logger: logger)
     end
 
     def disable_stat
-      ::Services::DisableStat.call(uuid: params[:uuid])
+      ::Ips::Services::SwitchStat::Disable.call(uuid: params[:uuid], logger: logger)
     end
 
     def delete_ip
-      ::Services::DeleteIp.call(uuid: params[:uuid])
+      ::Ips::Services::DeleteIp.call(uuid: params[:uuid], logger: logger)
+    end
+
+    def stats_query(stat_params)
+      ::Ips::Queries::StatsQuery.call(
+        uuid: params[:uuid],
+        time_from: stat_params[:time_from],
+        time_to: stat_params[:time_to],
+        logger: logger
+      )
+    end
+
+    def logger
+      @logger ||= settings.logger
     end
   end
 end

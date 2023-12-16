@@ -12,6 +12,7 @@ gem 'sinatra-contrib'
 
 gem 'pg'
 gem 'sequel'
+gem 'sequel-batches'
 
 gem 'jsonapi-serializers'
 
