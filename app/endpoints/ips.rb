@@ -32,7 +32,7 @@ module Endpoints
     get '/:uuid/stats' do
       data = stats_query(validate_with! Contracts::IpStatParamsContract)
       if data
-        json data: data.to_json, status: 200
+        json data: data, status: 200
       else
         json status: 422
       end

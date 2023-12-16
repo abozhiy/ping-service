@@ -23,27 +23,59 @@ module Ips
 
       private
 
-      def sql
+      # def sql  # Statistics by ping execution time
+      #   <<-SQL
+      #     SELECT
+      #       rtt_min,
+      #       rtt_max,
+      #       rtt_avg,
+      #       rtt_stddev,
+      #       (
+      #         SELECT percentile_cont(0.5) within group ( order by rtt_avg )
+      #         FROM stats
+      #         WHERE stats.ip_id = :uuid
+      #         AND stats.created_at BETWEEN :time_from AND :time_to
+      #       ) AS rtt_median,
+      #       lost_packets,
+      #       created_at
+      #
+      #     FROM stats
+      #
+      #     WHERE stats.ip_id = :uuid
+      #     AND stats.created_at BETWEEN :time_from AND :time_to
+      #     ORDER BY stats.created_at DESC
+      #   SQL
+      # end
+
+      def sql # Statistics with grouping by ip and aggregation
         <<-SQL
           SELECT 
-            rtt_min, 
-            rtt_max, 
-            rtt_avg, 
-            rtt_stddev, 
+            stats.rtt_min,
+            stats.rtt_max,
+            stats.rtt_avg::FLOAT,
             (
               SELECT percentile_cont(0.5) within group ( order by rtt_avg )
               FROM stats
               WHERE stats.ip_id = :uuid
               AND stats.created_at BETWEEN :time_from AND :time_to
             ) AS rtt_median,
-            lost_packets, 
-            created_at
-          
-          FROM stats
+            stats.rtt_stddev::FLOAT,
+            stats.lost_packets::FLOAT
 
-          WHERE stats.ip_id = :uuid
-          AND stats.created_at BETWEEN :time_from AND :time_to
-          ORDER BY stats.created_at DESC
+          FROM (
+            SELECT ip_id,
+                MIN(rtt_min) as rtt_min,
+                MAX(rtt_max) as rtt_max,
+                ROUND(AVG(rtt_avg)::numeric, 3) as rtt_avg,
+                ROUND(AVG(rtt_stddev)::numeric, 3) as rtt_stddev,
+                ROUND(AVG(lost_packets)::numeric, 3) as lost_packets
+            FROM stats
+
+            WHERE stats.ip_id = :uuid
+            AND stats.created_at BETWEEN :time_from AND :time_to
+
+            GROUP BY ip_id
+          ) AS stats
         SQL
       end
     end
