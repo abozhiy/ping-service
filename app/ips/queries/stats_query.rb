@@ -3,22 +3,18 @@
 module Ips
   module Queries
     class StatsQuery
-      def initialize(uuid:, time_from:, time_to:, logger:)
+      def initialize(uuid:, time_from:, time_to:)
         @uuid = uuid
         @time_from = time_from
         @time_to = time_to
-        @logger = logger
       end
 
-      def self.call(uuid:, time_from:, time_to:, logger:)
-        new(uuid: uuid, time_from: time_from, time_to: time_to, logger: logger).call
+      def self.call(uuid:, time_from:, time_to:)
+        new(uuid: uuid, time_from: time_from, time_to: time_to).call
       end
 
       def call
         DB.fetch(sql, uuid: @uuid, time_from: @time_from, time_to: @time_to).all
-      rescue StandardError => e
-        @logger.error e
-        nil
       end
 
       private

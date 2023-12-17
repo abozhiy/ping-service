@@ -16,7 +16,7 @@ module Ips
       end
 
       def call
-        Parallel.each(@batch, in_threads: POOL_SIZE) do |ip|
+        Parallel.each(@batch, in_threads: pool_size) do |ip|
           ping = Services::Ping.call(ip: ip[:address])
           min, avg, max, stddev = parse_rtt(ping)
           lost_packets = parse_lost_packets(ping)
@@ -57,6 +57,12 @@ module Ips
         return if result.nil?
 
         result.to_f
+      end
+
+      def pool_size
+        return 0 if ENV['RACK_ENV'].eql? 'test'
+
+        POOL_SIZE
       end
     end
   end

@@ -4,54 +4,64 @@ module Endpoints
   class Ips < Application
     post '/', provides: :json do
       if created.success?
-        json uuid: created.uuid, status: 200
+        status 200
+        json uuid: created.uuid
       else
-        json message: created.message, status: 422
+        status 422
+        json message: created.message
       end
     end
 
     post '/:uuid/enable' do
       if enabled.success?
-        json uuid: enabled.uuid, status: 200
+        status 200
+        json uuid: enabled.uuid
       else
-        json message: enabled.message, status: 422
+        status 422
+        json message: enabled.message
       end
     end
 
     post '/:uuid/disable' do
       if disabled.success?
-        json uuid: disabled.uuid, status: 200
+        status 200
+        json uuid: disabled.uuid
       else
-        json message: disabled.message, status: 422
+        status 422
+        json message: disabled.message
       end
     end
 
     get '/:uuid/stats' do
       if ip_stats.success?
-        json data: ip_stats.data, status: 200
+        status 200
+        json data: ip_stats.data
       else
-        json message: ip_stats.message, status: 422
+        status 422
+        json message: ip_stats.message
       end
     end
 
     delete '/:uuid' do
       if deleted.success?
-        json status: 200
+        status 200
       else
-        json message: deleted.message, status: 422
+        status 422
+        json message: deleted.message
       end
     end
 
     private
 
     def created
-      @created ||= create_ip(validate_with! Contracts::IpParamsContract)
+      @created ||= create_ip(validate_with Contracts::IpParamsContract)
     end
 
     def create_ip(params)
       ::Ips::Services::CreateIp.call(
         ip_address: params[:ip][:ip_address],
         enabled: params[:ip][:enabled],
+        contract: params,
         logger: logger
       )
     end
@@ -69,7 +79,7 @@ module Endpoints
     end
 
     def ip_stats
-      @ip_stats ||= get_ip_stats(validate_with! Contracts::IpStatParamsContract)
+      @ip_stats ||= get_ip_stats(validate_with Contracts::IpStatParamsContract)
     end
 
     def get_ip_stats(stat_params)
@@ -77,6 +87,7 @@ module Endpoints
         uuid: params[:uuid],
         time_from: stat_params[:time_from],
         time_to: stat_params[:time_to],
+        contract: stat_params,
         logger: logger
       )
     end

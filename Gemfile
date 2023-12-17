@@ -43,6 +43,7 @@ end
 
 group :test do
   gem 'database_cleaner'
+  gem 'database_cleaner-sequel'
   gem 'rspec-json_expectations'
   gem 'webmock'
 end

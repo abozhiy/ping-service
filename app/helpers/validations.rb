@@ -4,13 +4,18 @@ module Helpers
   module Validations
     InvalidParamsError = Class.new StandardError
 
-    def validate_with!(klass)
+    def validate_with(klass)
       contract = klass.new
-      params = JSON.parse(request.body.read)
-      result = contract.call(params)
-      raise InvalidParamsError if result.failure?
+      body = request.body.read
+      body = request.params if body.empty?
+      params = valid_json?(body) ? JSON.parse(body) : body
+      contract.call(params)
+    end
 
-      result
+    def valid_json?(string)
+      !!JSON.parse(string)
+    rescue JSON::ParserError, StandardError
+      false
     end
   end
 end

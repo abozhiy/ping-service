@@ -3,5 +3,5 @@
 .byebug_history
 public/*
 tmp/*
-logs/development.log
+logs/*
 dump.rdb

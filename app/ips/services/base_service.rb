@@ -13,6 +13,10 @@ module Ips
         @message = ''
       end
 
+      def call
+        raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
+      end
+
       def success?
         @result
       end
