@@ -3,50 +3,50 @@
 module Endpoints
   class Ips < Application
     post '/', provides: :json do
-      uuid = create_ip(validate_with! Contracts::IpParamsContract)
-      if uuid
-        json uuid: uuid, status: 200
+      if created.success?
+        json uuid: created.uuid, status: 200
       else
-        json status: 422
+        json message: created.message, status: 422
       end
     end
 
     post '/:uuid/enable' do
-      uuid = enable_stat
-      if uuid
-        json uuid: uuid, status: 200
+      if enabled.success?
+        json uuid: enabled.uuid, status: 200
       else
-        json status: 422
+        json message: enabled.message, status: 422
       end
     end
 
     post '/:uuid/disable' do
-      uuid = disable_stat
-      if uuid
-        json uuid: uuid, status: 200
+      if disabled.success?
+        json uuid: disabled.uuid, status: 200
       else
-        json status: 422
+        json message: disabled.message, status: 422
       end
     end
 
     get '/:uuid/stats' do
-      data = stats_query(validate_with! Contracts::IpStatParamsContract)
-      if data
-        json data: data, status: 200
+      if ip_stats.success?
+        json data: ip_stats.data, status: 200
       else
-        json status: 422
+        json message: ip_stats.message, status: 422
       end
     end
 
     delete '/:uuid' do
-      if delete_ip
+      if deleted.success?
         json status: 200
       else
-        json status: 422
+        json message: deleted.message, status: 422
       end
     end
 
     private
+
+    def created
+      @created ||= create_ip(validate_with! Contracts::IpParamsContract)
+    end
 
     def create_ip(params)
       ::Ips::Services::CreateIp.call(
@@ -56,20 +56,24 @@ module Endpoints
       )
     end
 
-    def enable_stat
-      ::Ips::Services::SwitchStat::Enable.call(uuid: params[:uuid], logger: logger)
+    def enabled
+      @enabled ||= ::Ips::Services::SwitchStat::Enable.call(uuid: params[:uuid], logger: logger)
     end
 
-    def disable_stat
-      ::Ips::Services::SwitchStat::Disable.call(uuid: params[:uuid], logger: logger)
+    def disabled
+      @disabled ||= ::Ips::Services::SwitchStat::Disable.call(uuid: params[:uuid], logger: logger)
     end
 
-    def delete_ip
-      ::Ips::Services::DeleteIp.call(uuid: params[:uuid], logger: logger)
+    def deleted
+      @deleted ||= ::Ips::Services::DeleteIp.call(uuid: params[:uuid], logger: logger)
     end
 
-    def stats_query(stat_params)
-      ::Ips::Queries::StatsQuery.call(
+    def ip_stats
+      @ip_stats ||= get_ip_stats(validate_with! Contracts::IpStatParamsContract)
+    end
+
+    def get_ip_stats(stat_params)
+      ::Ips::Services::GetIpStats.call(
         uuid: params[:uuid],
         time_from: stat_params[:time_from],
         time_to: stat_params[:time_to],

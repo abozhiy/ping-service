@@ -3,13 +3,15 @@
 module Ips
   module Services
     module SwitchStat
-      class Base
-        IpNotExistError = Class.new StandardError
+      class Base < BaseService
+        attr_reader :uuid
 
         def initialize(uuid:, repo:, logger:)
           @uuid = uuid
           @repo = repo
           @logger = logger
+
+          super
         end
 
         def self.call(uuid:, repo: Repositories::Ip, logger:)
@@ -17,14 +19,14 @@ module Ips
         end
 
         def call
-          ip = @repo.find_by(id: @uuid)
-          raise IpNotExistError if ip.nil?
+          wrap do
+            ip = @repo.find_by(id: @uuid)
+            raise IpNotExistError, 'Ip address does not exist.' if ip.nil?
 
-          update_enabled_field
-          @uuid
-        rescue StandardError => e
-          @logger.error e.message
-          nil
+            update_enabled_field
+            @result = true
+            self
+          end
         end
 
         private def update_enabled_field

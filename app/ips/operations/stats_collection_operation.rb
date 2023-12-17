@@ -3,7 +3,7 @@
 module Ips
   module Operations
     class StatsCollectionOperation
-      TIMEOUT = 2
+      POOL_SIZE = 10
 
       def initialize(batch:, repo:, logger:)
         @batch = batch
@@ -16,16 +16,16 @@ module Ips
       end
 
       def call
-        thread_service.call do |ip|
-          ping = `ping -t #{TIMEOUT} #{ip[:address]}`
-          rtt = parse_rtt(ping)
+        Parallel.each(@batch, in_threads: POOL_SIZE) do |ip|
+          ping = Services::Ping.call(ip: ip[:address])
+          min, avg, max, stddev = parse_rtt(ping)
           lost_packets = parse_lost_packets(ping)
-          if rtt.nil? || lost_packets.nil?
+
+          if [min, avg, max, stddev].all?(&:nil?) || lost_packets.nil?
             @logger.error "PingTransmitFailedError, ip: #{ip[:address]}"
             next
           end
 
-          min, avg, max, stddev = rtt.split('/').map(&:to_f)
           @repo.create(
             ip_id: ip[:id],
             rtt_min: min,
@@ -42,15 +42,21 @@ module Ips
       private
 
       def parse_rtt(str)
-        str[/stddev = (.*?) ms\n/m, 1]
+        return [] if str.nil?
+
+        result = str[/stddev = (.*?) ms\n/m, 1]
+        return [] if result.nil?
+
+        result.split('/').map(&:to_f)
       end
 
       def parse_lost_packets(str)
-        str[/received, (.*?)% packet loss/m, 1]
-      end
+        return if str.nil?
 
-      def thread_service
-        ::Services::ThreadService.new(list: @batch, logger: @logger)
+        result = str[/received, (.*?)% packet loss/m, 1]
+        return if result.nil?
+
+        result.to_f
       end
     end
   end

@@ -3,13 +3,13 @@
 module Workers
   class PingWorker
     include Sidekiq::Worker
-    BATCHES_NUMBER = 10
+    BATCHES_SIZE = 10
 
     sidekiq_options queue: :ping, retry: 0
 
     def perform
-      repo.enabled_ips.in_batches(of: BATCHES_NUMBER) do |batch|
-        ::Ips::Operations::StatsCollectionOperation.call(batch: batch, logger: logger)
+      repo.enabled_ips.in_batches(of: BATCHES_SIZE) do |batch|
+        ::Ips::Operations::StatsCollectionOperation.call(batch: batch.all, logger: logger)
       end
     end
 

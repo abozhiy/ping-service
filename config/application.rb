@@ -7,7 +7,8 @@ class Application < Sinatra::Base
   configure do
     register Sinatra::Namespace
 
-    logger = Logger.new("logs/#{ENV['RACK_ENV']}.log")
+    log_file = File.open(File.join(APP_ROOT, "/logs/#{ENV['RACK_ENV']}.log"), 'a')
+    logger = Logger.new(log_file)
     set :logger, logger
 
     set :app_file, File.expand_path('../config.ru', __dir__)

@@ -2,13 +2,13 @@
 
 module Ips
   module Services
-    class DeleteIp
-      IpNotExistError = Class.new StandardError
-
+    class DeleteIp < BaseService
       def initialize(uuid:, repo:, logger:)
         @uuid = uuid
         @repo = repo
         @logger = logger
+
+        super
       end
 
       def self.call(uuid:, repo: Repositories::Ip, logger:)
@@ -16,13 +16,14 @@ module Ips
       end
 
       def call
-        ip = @repo.find_by(id: @uuid)
-        raise IpNotExistError if ip.nil?
+        wrap do
+          ip = @repo.find_by(id: @uuid)
+          raise IpNotExistError, 'Ip address does not exist.' if ip.nil?
 
-        @repo.delete(@uuid)
-      rescue StandardError => e
-        @logger.error e.message
-        nil
+          @repo.delete(@uuid)
+          @result = true
+          self
+        end
       end
     end
   end

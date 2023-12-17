@@ -2,14 +2,17 @@
 
 module Ips
   module Services
-    class CreateIp
-      IpAlreadyExistError = Class.new StandardError
+    class CreateIp < BaseService
+      attr_reader :uuid
 
       def initialize(ip_address:, repo:, enabled:, logger:)
         @ip_address = ip_address
         @repo = repo
         @enabled = enabled
         @logger = logger
+        @uuid = ''
+
+        super
       end
 
       def self.call(ip_address:, repo: Repositories::Ip, enabled:, logger:)
@@ -17,13 +20,14 @@ module Ips
       end
 
       def call
-        ip = @repo.find_by(address: @ip_address)
-        raise IpAlreadyExistError unless ip.nil?
+        wrap do
+          ip = @repo.find_by(address: @ip_address)
+          raise IpAlreadyExistError, 'Ip address already exist.' unless ip.nil?
 
-        @repo.create(address: @ip_address, enabled: @enabled)
-      rescue StandardError => e
-        @logger.error e.message
-        nil
+          @uuid = @repo.create(address: @ip_address, enabled: @enabled)
+          @result = true
+          self
+        end
       end
     end
   end
