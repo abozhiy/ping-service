@@ -25,7 +25,7 @@ describe 'POST /ips', type: :request do
     end
   end
 
-  context 'when invalid ip_address' do
+  context 'when invalid ip_address not exist' do
     let(:ip_address) { nil }
 
     it { expect(request.status).to eq 422 }
@@ -36,7 +36,18 @@ describe 'POST /ips', type: :request do
     end
   end
 
-  context 'when invalid ip_address' do
+  context 'when ip_address invalid' do
+    let(:ip_address) { '127.0.0.256' }
+
+    it { expect(request.status).to eq 422 }
+
+    it 'returns message' do
+      body = JSON.parse(request.body)
+      expect(body['message']).not_to be_nil
+    end
+  end
+
+  context 'when enabled not exist' do
     let(:enabled) { nil }
 
     it { expect(request.status).to eq 422 }
