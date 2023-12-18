@@ -59,8 +59,8 @@ module Endpoints
 
     def create_ip(params)
       ::Ips::Services::CreateIp.call(
-        ip_address: params[:ip][:ip_address],
-        enabled: params[:ip][:enabled],
+        ip_address: params.to_h.dig(:ip, :ip_address),
+        enabled: params.to_h.dig(:ip, :enabled),
         contract: params,
         logger: logger
       )
@@ -85,8 +85,8 @@ module Endpoints
     def get_ip_stats(stat_params)
       ::Ips::Services::GetIpStats.call(
         uuid: params[:uuid],
-        time_from: stat_params[:time_from],
-        time_to: stat_params[:time_to],
+        time_from: stat_params.to_h.dig(:time_from),
+        time_to: stat_params.to_h.dig(:time_to),
         contract: stat_params,
         logger: logger
       )

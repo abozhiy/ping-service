@@ -46,6 +46,17 @@ describe 'POST /ips', type: :request do
       expect(body['message']).not_to be_nil
     end
   end
+
+  context 'when empty body' do
+    let(:body) { {} }
+
+    it { expect(request.status).to eq 422 }
+
+    it 'returns message' do
+      body = JSON.parse(request.body)
+      expect(body['message']).not_to be_nil
+    end
+  end
 end
 
 describe 'POST /ips/:uuid/enable', type: :request do
@@ -131,6 +142,18 @@ describe 'POST /ips/:uuid/stats', type: :request do
 
   context 'when data does not exist' do
     let(:uuid) { SecureRandom.uuid }
+
+    it { expect(request.status).to eq 422 }
+
+    it 'returns message' do
+      body = JSON.parse(request.body)
+      expect(body['message']).not_to be_nil
+    end
+  end
+
+  context 'when empty body' do
+    let(:uuid) { ip.id }
+    let(:body) { {} }
 
     it { expect(request.status).to eq 422 }
 
