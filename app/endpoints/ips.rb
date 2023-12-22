@@ -54,14 +54,8 @@ module Endpoints
     private
 
     def created
-      @created ||= create_ip(validate_with Contracts::IpParamsContract)
-    end
-
-    def create_ip(params)
-      ::Ips::Services::CreateIp.call(
-        ip_address: params.to_h.dig(:ip, :ip_address),
-        enabled: params.to_h.dig(:ip, :enabled),
-        contract: params,
+      @created ||= ::Ips::Services::CreateIp.call(
+        validation_result: validate_with(Contracts::IpParamsContract),
         logger: logger
       )
     end
@@ -79,15 +73,9 @@ module Endpoints
     end
 
     def ip_stats
-      @ip_stats ||= get_ip_stats(validate_with Contracts::IpStatParamsContract)
-    end
-
-    def get_ip_stats(stat_params)
-      ::Ips::Services::GetIpStats.call(
+      @ip_stats ||= ::Ips::Services::GetIpStats.call(
         uuid: params[:uuid],
-        time_from: stat_params.to_h.dig(:time_from),
-        time_to: stat_params.to_h.dig(:time_to),
-        contract: stat_params,
+        validation_result: validate_with(Contracts::IpStatParamsContract),
         logger: logger
       )
     end

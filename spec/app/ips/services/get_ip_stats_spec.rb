@@ -5,9 +5,7 @@ describe Ips::Services::GetIpStats do
     subject(:call) do
       described_class.call(
         uuid: uuid,
-        time_from: time_from,
-        time_to: time_to,
-        contract: fake_result,
+        validation_result: fake_result,
         logger: fake_logger
       )
     end
@@ -21,10 +19,15 @@ describe Ips::Services::GetIpStats do
     end
 
     let(:fake_logger) { instance_double(Logger) }
-    let(:fake_result) { instance_double(Dry::Validation::Result) }
+    let(:fake_result) { instance_double(Dry::Validation::Result, to_h: fake_result_hash) }
     let(:uuid)        { SecureRandom.uuid }
-    let(:time_from)   { '' }
-    let(:time_to)     { '' }
+
+    let(:fake_result_hash) do
+      {
+        time_from: '',
+        time_to: ''
+      }
+    end
 
     context 'when ip_stats data exist' do
       before do

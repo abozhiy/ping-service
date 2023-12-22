@@ -5,25 +5,23 @@ module Ips
     class GetIpStats < BaseService
       attr_reader :data
 
-      def initialize(uuid:, time_from:, time_to:, logger:, contract:)
+      def initialize(uuid:, validation_result:, logger:)
         @uuid = uuid
-        @time_from = time_from
-        @time_to = time_to
-        @contract = contract
+        @validation_result = validation_result
         @logger = logger
         @data = []
 
         super
       end
 
-      def self.call(uuid:, time_from:, time_to:, logger:, contract:)
-        new(uuid: uuid, time_from: time_from, time_to: time_to, logger: logger, contract: contract).call
+      def self.call(uuid:, validation_result:, logger:)
+        new(uuid: uuid, validation_result: validation_result, logger: logger).call
       end
 
       def call
         wrap do
-          if @contract.failure?
-            @message = @contract.errors.messages.first.text
+          if @validation_result.failure?
+            @message = @validation_result.errors.messages.first.text
             return self
           end
 
@@ -42,9 +40,13 @@ module Ips
       def stats_query
         @stats_query ||= Queries::StatsQuery.call(
           uuid: @uuid,
-          time_from: @time_from,
-          time_to: @time_to
+          time_from: params.dig(:time_from),
+          time_to: params.dig(:time_to)
         )
+      end
+
+      def params
+        @params ||= @validation_result.to_h
       end
     end
   end

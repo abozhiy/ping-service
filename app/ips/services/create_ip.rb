@@ -5,35 +5,42 @@ module Ips
     class CreateIp < BaseService
       attr_reader :uuid
 
-      def initialize(ip_address:, repo:, enabled:, contract:, logger:)
-        @ip_address = ip_address
+      def initialize(repo:, validation_result:, logger:)
         @repo = repo
-        @enabled = enabled
         @logger = logger
-        @contract = contract
+        @validation_result = validation_result
         @uuid = ''
 
         super
       end
 
-      def self.call(ip_address:, repo: Repositories::Ip, enabled:, contract:, logger:)
-        new(ip_address: ip_address, repo: repo, enabled: enabled, contract: contract, logger: logger).call
+      def self.call(repo: Repositories::Ip, validation_result:, logger:)
+        new(repo: repo, validation_result: validation_result, logger: logger).call
       end
 
       def call
         wrap do
-          if @contract.failure?
-            @message = @contract.errors.messages.first.text
+          if @validation_result.failure?
+            @message = @validation_result.errors.messages.first.text
             return self
           end
 
-          ip = @repo.find_by(address: @ip_address)
+          ip = @repo.find_by(address: params.dig(:ip, :ip_address))
           raise IpAlreadyExistError, 'Ip address already exist.' unless ip.nil?
 
-          @uuid = @repo.create(address: @ip_address, enabled: @enabled)
+          @uuid = @repo.create(
+            address: params.dig(:ip, :ip_address),
+            enabled: params.dig(:ip, :enabled)
+          )
           @result = true
           self
         end
+      end
+
+      private
+
+      def params
+        @params ||= @validation_result.to_h
       end
     end
   end

@@ -4,9 +4,7 @@ describe Ips::Services::CreateIp do
   describe '.call' do
     subject(:call) do
       described_class.call(
-        ip_address: ip_address,
-        enabled: enabled,
-        contract: fake_result,
+        validation_result: fake_result,
         logger: fake_logger
       )
     end
@@ -20,9 +18,18 @@ describe Ips::Services::CreateIp do
     end
 
     let(:fake_logger) { instance_double(Logger) }
-    let(:fake_result) { instance_double(Dry::Validation::Result) }
     let(:ip_address)  { '127.0.0.1' }
     let(:enabled)     { true }
+    let(:fake_result) { instance_double(Dry::Validation::Result, to_h: fake_result_hash) }
+
+    let(:fake_result_hash) do
+      {
+        ip: {
+          ip_address: ip_address,
+          enabled: enabled
+        }
+      }
+    end
 
     context 'when ip not exist yet' do
       it 'is successful' do
