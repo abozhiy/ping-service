@@ -14,8 +14,8 @@ Sequel.migration do
       Timestamp :updated_at, default: Sequel.lit("now()"), null: false
 
       index :id, unique: true
-      index :ip_id,
-            name: :covering_index_stats_on_ip_id,
+      index [:ip_id, :created_at],
+            name: :covering_index_stats_on_ip_id_created_at,
             include: [:rtt_min, :rtt_max, :rtt_avg, :rtt_stddev, :lost_packets]
     end
   end
