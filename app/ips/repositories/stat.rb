@@ -2,6 +2,7 @@
 
 module Ips
   module Repositories
+    # Stat repo
     class Stat
       class << self
         def create(**attributes)

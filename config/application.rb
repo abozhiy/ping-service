@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
-class Application < Sinatra::Base
+class Application < Sinatra::Base # rubocop:disable Style/Documentation
   helpers Helpers::Validations
-
 
   configure do
     register Sinatra::Namespace

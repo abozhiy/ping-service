@@ -2,13 +2,14 @@
 
 module Ips
   module Services
+    # Main base service
     class BaseService
       attr_reader :message, :result
 
       IpAlreadyExistError = Class.new StandardError
       IpNotExistError = Class.new StandardError
 
-      def initialize(**attributes)
+      def initialize(_attributes)
         @result = false
         @message = ''
       end
@@ -21,7 +22,24 @@ module Ips
         @result
       end
 
-      private def wrap
+      private
+
+      def params
+        raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
+      end
+
+      def validation
+        raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
+      end
+
+      def validation_failure?
+        return false unless validation.failure?
+
+        @message = validation.errors.messages.first.text
+        true
+      end
+
+      def wrap
         yield
       rescue StandardError => e
         @logger.error e

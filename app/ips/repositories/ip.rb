@@ -2,6 +2,7 @@
 
 module Ips
   module Repositories
+    # Ip repo
     class Ip
       class << self
         def find_by(**attributes)

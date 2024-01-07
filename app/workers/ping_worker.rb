@@ -1,6 +1,7 @@
-# frozen_string_literal = true
+# frozen_string_literal: true
 
 module Workers
+  # Worker for ping sidekiq-cron job
   class PingWorker
     include Sidekiq::Worker
     BATCHES_SIZE = 10

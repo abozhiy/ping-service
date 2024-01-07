@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 describe Ips::Operations::StatsCollectionOperation do
   describe '.call' do
     subject(:call) { described_class.call(batch: batch, logger: fake_logger) }
@@ -24,12 +25,13 @@ describe Ips::Operations::StatsCollectionOperation do
       end
 
       let(:fake_ping) do
-        <<~HEREDOC
-          PING 127.0.0.1 (127.0.0.1): 56 data bytes\n64 bytes from 127.0.0.1: icmp_seq=0 
-          ttl=64 time=0.058 ms\n64 bytes from 127.0.0.1: icmp_seq=1 ttl=64 time=0.117 ms\n\n--- 127.0.0.1 
-          ping statistics ---\n3 packets transmitted, 2 packets received, #{lost_packets}% packet loss\nround-trip 
-          min/avg/max/stddev = #{min}/#{avg}/#{max}/#{stddev} ms\n
-        HEREDOC
+        OpenStruct.new(
+          rtt_min: min,
+          rtt_max: max,
+          rtt_avg: avg,
+          rtt_stddev: stddev,
+          lost_packets: lost_packets
+        )
       end
 
       let(:expected) do
@@ -50,10 +52,9 @@ describe Ips::Operations::StatsCollectionOperation do
 
       it 'has exact data from ping' do
         call
-        stats_data = DB[:stats].
-          where(ip_id: ip.id).
-          select(:rtt_min, :rtt_max, :rtt_avg, :rtt_stddev, :lost_packets).
-          first
+        stats_data = DB[:stats].where(ip_id: ip.id)
+                               .select(:rtt_min, :rtt_max, :rtt_avg, :rtt_stddev, :lost_packets)
+                               .first
 
         expect(stats_data).to eq expected
       end
@@ -62,14 +63,10 @@ describe Ips::Operations::StatsCollectionOperation do
     context 'when failed ping' do
       before do
         allow(Ips::Services::Ping).to receive(:call).and_return fake_ping
+        allow(fake_ping).to receive(:not_rtt?).and_return true
       end
 
-      let(:fake_ping) do
-        <<~HEREDOC
-          PING 127.0.0.1 (127.0.0.1): 56 data bytes\nRequest timeout for icmp_seq 0\n\n---
-          127.0.0.1 ping statistics ---\n2 packets transmitted, 0 packets received, 100.0% packet loss\n
-        HEREDOC
-      end
+      let(:fake_ping) { OpenStruct.new }
 
       it 'pushes message to logger' do
         call
@@ -97,3 +94,4 @@ describe Ips::Operations::StatsCollectionOperation do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength

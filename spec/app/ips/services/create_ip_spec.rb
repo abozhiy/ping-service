@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 describe Ips::Services::CreateIp do
   describe '.call' do
     subject(:call) do
@@ -88,3 +89,4 @@ describe Ips::Services::CreateIp do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength

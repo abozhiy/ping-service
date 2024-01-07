@@ -2,10 +2,11 @@
 
 module Ips
   module Services
+    # Service allows to create new IP rows
     class CreateIp < BaseService
       attr_reader :uuid
 
-      def initialize(repo:, validation_result:, logger:)
+      def initialize(validation_result:, logger:, repo:)
         @repo = repo
         @logger = logger
         @validation_result = validation_result
@@ -14,24 +15,18 @@ module Ips
         super
       end
 
-      def self.call(repo: Repositories::Ip, validation_result:, logger:)
-        new(repo: repo, validation_result: validation_result, logger: logger).call
+      def self.call(validation_result:, logger:, repo: Repositories::Ip)
+        new(validation_result: validation_result, logger: logger, repo: repo).call
       end
 
       def call
         wrap do
-          if @validation_result.failure?
-            @message = @validation_result.errors.messages.first.text
-            return self
-          end
+          return self if validation_failure?
 
           ip = @repo.find_by(address: params.dig(:ip, :ip_address))
           raise IpAlreadyExistError, 'Ip address already exist.' unless ip.nil?
 
-          @uuid = @repo.create(
-            address: params.dig(:ip, :ip_address),
-            enabled: params.dig(:ip, :enabled)
-          )
+          @uuid = create_ip
           @result = true
           self
         end
@@ -41,6 +36,17 @@ module Ips
 
       def params
         @params ||= @validation_result.to_h
+      end
+
+      def validation
+        @validation_result
+      end
+
+      def create_ip
+        @repo.create(
+          address: params.dig(:ip, :ip_address),
+          enabled: params.dig(:ip, :enabled)
+        )
       end
     end
   end

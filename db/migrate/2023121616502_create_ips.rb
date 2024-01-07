@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Sequel.migration do
   change do
     run 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'
@@ -7,10 +9,8 @@ Sequel.migration do
       String    :address, null: false
       String    :version, null: true
       TrueClass :enabled, null: false, default: false
-      Timestamp :created_at, default: Sequel.lit("now()"), null: false
-      Timestamp :updated_at, default: Sequel.lit("now()"), null: false
-
-      index :id, unique: true
+      Timestamp :created_at, default: Sequel.lit('now()'), null: false
+      Timestamp :updated_at, default: Sequel.lit('now()'), null: false
     end
   end
 end

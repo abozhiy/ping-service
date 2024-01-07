@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 describe 'POST /ips', type: :request do
   subject(:request) { post '/ips', body.to_json, headers }
 
@@ -197,3 +198,4 @@ describe 'DELETE /ips/:uuid', type: :request do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength

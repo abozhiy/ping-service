@@ -1,7 +1,8 @@
-# frozen_string_literals = true
+# frozen_string_literal: true
 
 module Ips
   module Queries
+    # Ips statistics by period query
     class StatsQuery
       def initialize(uuid:, time_from:, time_to:)
         @uuid = uuid
@@ -21,7 +22,7 @@ module Ips
 
       def sql
         <<-SQL
-          SELECT 
+          SELECT
             stats.rtt_min,
             stats.rtt_max,
             stats.rtt_avg::FLOAT,

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 describe Ips::Services::GetIpStats do
   describe '.call' do
     subject(:call) do
@@ -90,3 +91,4 @@ describe Ips::Services::GetIpStats do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Sequel.migration do
   change do
     run 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'
@@ -10,13 +12,12 @@ Sequel.migration do
       Float     :rtt_avg, null: false
       Float     :rtt_stddev, null: false
       Float     :lost_packets, null: false
-      Timestamp :created_at, default: Sequel.lit("now()"), null: false
-      Timestamp :updated_at, default: Sequel.lit("now()"), null: false
+      Timestamp :created_at, default: Sequel.lit('now()'), null: false
+      Timestamp :updated_at, default: Sequel.lit('now()'), null: false
 
-      index :id, unique: true
-      index [:ip_id, :created_at],
+      index %i[ip_id created_at],
             name: :covering_index_stats_on_ip_id_created_at,
-            include: [:rtt_min, :rtt_max, :rtt_avg, :rtt_stddev, :lost_packets]
+            include: %i[rtt_min rtt_max rtt_avg rtt_stddev lost_packets]
     end
   end
 end

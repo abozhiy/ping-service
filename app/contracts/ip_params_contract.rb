@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Contracts
-  class IpParamsContract < Dry::Validation::Contract
+  class IpParamsContract < Dry::Validation::Contract # rubocop:disable Style/Documentation
     params do
       required(:ip).hash do
         required(:enabled).filled(:bool)

@@ -2,6 +2,7 @@
 
 module Ips
   module Services
+    # Service allows to receive IP statistic
     class GetIpStats < BaseService
       attr_reader :data
 
@@ -20,10 +21,7 @@ module Ips
 
       def call
         wrap do
-          if @validation_result.failure?
-            @message = @validation_result.errors.messages.first.text
-            return self
-          end
+          return self if validation_failure?
 
           if (@data = stats_query).empty?
             @result = false
@@ -40,13 +38,17 @@ module Ips
       def stats_query
         @stats_query ||= Queries::StatsQuery.call(
           uuid: @uuid,
-          time_from: params.dig(:time_from),
-          time_to: params.dig(:time_to)
+          time_from: params[:time_from],
+          time_to: params[:time_to]
         )
       end
 
       def params
         @params ||= @validation_result.to_h
+      end
+
+      def validation
+        @validation_result
       end
     end
   end

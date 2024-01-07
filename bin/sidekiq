@@ -1,4 +1,4 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-exec( "sidekiq -r ./config/environment.rb -C ./config/sidekiq.yml" )
+exec('sidekiq -r ./config/environment.rb -C ./config/sidekiq.yml')

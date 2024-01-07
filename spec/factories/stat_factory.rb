@@ -4,7 +4,7 @@ FactoryBot.define do
   factory :stat, class: Entities::Stat do
     ip_id        { SecureRandom.uuid }
     rtt_min      { 11.111 }
-    rtt_max      { 12.111  }
+    rtt_max      { 12.111 }
     rtt_avg      { 11.555 }
     rtt_stddev   { 3.555 }
     lost_packets { 0.1 }

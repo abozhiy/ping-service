@@ -2,8 +2,9 @@
 
 module Ips
   module Services
+    # Service allows to delete new IP rows
     class DeleteIp < BaseService
-      def initialize(uuid:, repo:, logger:)
+      def initialize(uuid:, logger:, repo:)
         @uuid = uuid
         @repo = repo
         @logger = logger
@@ -11,8 +12,8 @@ module Ips
         super
       end
 
-      def self.call(uuid:, repo: Repositories::Ip, logger:)
-        new(uuid: uuid, repo: repo, logger: logger).call
+      def self.call(uuid:, logger:, repo: Repositories::Ip)
+        new(uuid: uuid, logger: logger, repo: repo).call
       end
 
       def call

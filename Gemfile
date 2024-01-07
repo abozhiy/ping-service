@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# rubocop:disable Bundler/OrderedGems
+
 source 'https://rubygems.org'
 
 gem 'puma', '= 5.6.4'
@@ -51,3 +53,5 @@ end
 group :development do
   # gem 'debase'
 end
+
+# rubocop:enable Bundler/OrderedGems

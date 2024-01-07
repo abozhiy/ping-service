@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 describe Ips::Services::DeleteIp do
   describe '.call' do
     subject(:call) { described_class.call(uuid: uuid, logger: fake_logger) }
@@ -69,3 +70,4 @@ describe Ips::Services::DeleteIp do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength

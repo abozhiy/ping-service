@@ -1,6 +1,7 @@
-# frozen_string_literal = true
+# frozen_string_literal: true
 
 module Helpers
+  # Validation helper
   module Validations
     InvalidParamsError = Class.new StandardError
 
@@ -14,7 +15,7 @@ module Helpers
 
     def valid_json?(string)
       !!JSON.parse(string)
-    rescue JSON::ParserError, StandardError
+    rescue StandardError
       false
     end
   end

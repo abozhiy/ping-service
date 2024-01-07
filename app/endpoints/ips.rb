@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 module Endpoints
+  # Ips endpoints
   class Ips < Application
     post '/', provides: :json do
       if created.success?

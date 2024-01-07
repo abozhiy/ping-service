@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 namespace :db do
   task :seed, %i[version] => :settings do
-
     require 'sequel/core'
 
     Sequel.connect(Settings.db.to_h).tap do |db|
@@ -43,3 +43,4 @@ namespace :db do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength

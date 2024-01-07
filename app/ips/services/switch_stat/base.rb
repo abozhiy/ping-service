@@ -3,10 +3,11 @@
 module Ips
   module Services
     module SwitchStat
+      # Base service for enable/disable statistic collector for IP
       class Base < BaseService
         attr_reader :uuid
 
-        def initialize(uuid:, repo:, logger:)
+        def initialize(uuid:, logger:, repo:)
           @uuid = uuid
           @repo = repo
           @logger = logger
@@ -14,8 +15,8 @@ module Ips
           super
         end
 
-        def self.call(uuid:, repo: Repositories::Ip, logger:)
-          new(uuid: uuid, repo: repo, logger: logger).call
+        def self.call(uuid:, logger:, repo: Repositories::Ip)
+          new(uuid: uuid, logger: logger, repo: repo).call
         end
 
         def call
@@ -29,7 +30,9 @@ module Ips
           end
         end
 
-        private def update_enabled_field
+        private
+
+        def update_enabled_field
           raise NotImplementedError, "#{self.class} has not implemented method '#{__method__}'"
         end
       end

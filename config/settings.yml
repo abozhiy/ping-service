@@ -2,3 +2,5 @@ db:
   adapter: postgresql
   host: localhost
   user: postgres
+  max_connections: 10
+  pool_timeout: 20

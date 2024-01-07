@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/BlockLength
 describe Ips::Queries::StatsQuery do
   describe '.call' do
     subject(:call) { described_class.call(uuid: uuid, time_from: time_from, time_to: time_to) }
@@ -14,7 +15,6 @@ describe Ips::Queries::StatsQuery do
                rtt_stddev: data[:rtt_stddev],
                lost_packets: data[:lost_packets],
                created_at: data[:created_at])
-
       end
     end
 
@@ -86,3 +86,4 @@ describe Ips::Queries::StatsQuery do
     end
   end
 end
+# rubocop:enable Metrics/BlockLength
